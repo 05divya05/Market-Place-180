@@ -2,11 +2,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class UserProfile implements Users,Serializable {
-    private String username;  //unique name associated with user
-    private ArrayList<String> friends;  //list of friends of user
-    private ArrayList<String> blockedFriends;  //list of blocked friends of user
-    private String email;  //email associated with user
-    private String password;  //password associated with user
+    private String username;
+    private ArrayList<String> friends;
+    private ArrayList<String> blockedFriends;
+    private String email;
+    private String password;
 
     public UserProfile(String username, String email, String password) {
 
