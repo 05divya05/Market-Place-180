@@ -1,6 +1,6 @@
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
+
 
 public class UserProfile implements Users ,Serializable {
     private String username;
@@ -36,7 +36,34 @@ public class UserProfile implements Users ,Serializable {
 
     @Override
     public ArrayList<String> getFriends() {
-        return null;
+
+        ArrayList<String> friendsList = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader("users.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] userDetails = line.split(",");
+                if (userDetails[0].equals(this.username)) {
+                    if (userDetails[3].equals("EmptyFriendsList")) {
+                        break;
+                    } else if (!(userDetails[3].equals("EmptyFriendsList")) && !(userDetails[3].contains(";"))) {
+                        friendsList.add(userDetails[3]);
+                    } else {
+                        String[] friendsListArray = userDetails[3].split(";");
+                        for (String friend : friendsListArray) {
+                            friendsList.add(friend);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (friendsList.isEmpty()) {
+            friendsList.add("EmptyFriendsList");
+        }
+        return friendsList;
     }
 
     @Override
