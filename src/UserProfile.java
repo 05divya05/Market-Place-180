@@ -1,7 +1,7 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class UserProfile implements Users,Serializable {
+public class UserProfile implements Users ,Serializable {
     private String username;
     private ArrayList<String> friends;
     private ArrayList<String> blockedFriends;
