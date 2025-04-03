@@ -1,2 +1,2 @@
-public class CreateNewProfileInterface {
+public interface CreateNewProfileInterface {
 }
