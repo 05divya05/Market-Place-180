@@ -5,7 +5,7 @@ Market Place Project
 
 Project Description:
 ---------------------
-This project implements a fully functional marketplace platform where users can act as buyers and sellers. 
+This project implements fully functional marketplace platform where users can act as buyers and sellers. 
 The platform supports user registration, item listing, item searching, messaging, payment processing, and user ratings.
 
 Option Selected: Market Place
