@@ -35,3 +35,4 @@ public interface CommentsInterface {
      */
     List<Comment> getComments(String itemID);
 }
+
