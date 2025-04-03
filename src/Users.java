@@ -1,6 +1,9 @@
 import java.util.*;
 
 public interface Users {
+
+    String getUserID();
+
     String getUsername();
 
     void setUsername(String newUsername);

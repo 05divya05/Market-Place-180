@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class UserProfile implements Users ,Serializable {
     private String username;
@@ -7,6 +8,7 @@ public class UserProfile implements Users ,Serializable {
     private ArrayList<String> blockedFriends;
     private String email;
     private String password;
+    private final String userID;
 
     public UserProfile(String username, String email, String password) {
 
@@ -15,8 +17,12 @@ public class UserProfile implements Users ,Serializable {
         this.blockedFriends = new ArrayList<String>();
         this.email = email;
         this.password = password;
+        this.userID = UUID.randomUUID().toString();
 
     }
+    
+    @Override
+    public String getUserID() {return userID;}
 
     @Override
     public String getUsername() {
