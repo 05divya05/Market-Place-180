@@ -1,14 +1,17 @@
+package src;
+
+import java.io.IOException;
 import java.util.List;
 
 public interface MessageInterface {
 
-    String sendMessage(String senderID, String receiverID, String message);
+    void sendMessage(String senderUUID, String receiverUUID, String senderUserName, String message) throws IOException;
 
-    String getMessageHistory(String userID1, String userID2);
+    String loadChatHistory(String user1UUID, String user2UUID);
 
-    void appendNewMessage(String userID1, String userID2);
+    void loadAllChatsFromFile() throws IOException;
 
-    String getSenderID();
+    void saveAllChatsToFile() throws IOException;
 
-    String getReceiverID();
+    String getWhichChat(String user1UUID, String user2UUID);
 }

@@ -1,4 +1,6 @@
-import java.util.ArrayList
+package src;
+
+import java.util.ArrayList;
 /**
  * ItemListingInterface is for liking, favoriting, searching items, etc.
  * Not for creating item!
