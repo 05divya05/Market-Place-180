@@ -10,22 +10,22 @@ public class RatingDatabase implements DatabaseInterface {
     }
 
     @Override
-    public boolean save(Object obj) {
+    public void save(Object obj) {
         RatingEntry entry = (RatingEntry) obj;
         String sql = "INSERT INTO ratings (sellerID, buyerID, score) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, entry.getSellerID());
             stmt.setString(2, entry.getBuyerID());
             stmt.setDouble(3, entry.getScore());
-            return stmt.executeUpdate() > 0;
+             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            ;
         }
     }
 
     @Override
-    public Object load(String sellerID) {
+    public Double load(String sellerID) {
         String sql = "SELECT AVG(score) AS average FROM ratings WHERE sellerID = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, sellerID);
@@ -52,7 +52,7 @@ public class RatingDatabase implements DatabaseInterface {
     }
 
     @Override
-    public boolean update(Object obj) {
-        return false;
+    public void update(Object obj) {
+        ;
     }
 }

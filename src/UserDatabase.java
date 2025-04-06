@@ -10,7 +10,7 @@ public class UserDatabase implements DatabaseInterface {
     }
 
     @Override
-    public boolean save(Object obj) {
+    public void save(Object obj) {
         UserProfile user = (UserProfile) obj;
         String sql = "INSERT INTO users (userID, username, email, password) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -18,10 +18,10 @@ public class UserDatabase implements DatabaseInterface {
             stmt.setString(2, user.getUsername());
             stmt.setString(3, user.getEmail());
             stmt.setString(4, user.getPassword());
-            return stmt.executeUpdate() > 0;
+            stmt.executeUpdate() ;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            ;
         }
     }
 
@@ -57,17 +57,17 @@ public class UserDatabase implements DatabaseInterface {
     }
 
     @Override
-    public boolean update(Object obj) {
+    public void update(Object obj) {
         UserProfile user = (UserProfile) obj;
         String sql = "UPDATE users SET email = ?, password = ? WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getUsername());
-            return stmt.executeUpdate() > 0;
+             stmt.executeUpdate() ;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            ;
         }
     }
 }
