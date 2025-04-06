@@ -75,4 +75,6 @@ public interface ItemInterface {
      * @return The seller's ID.
      */
     String getSellerID();
+
+    void deleteItem();
 }

@@ -73,4 +73,10 @@ public class Item implements ItemInterface {
     public String getSellerID() {
         return sellerID;
     }
+
+    @Override
+    public void deleteItem() {
+        this.itemID = null;
+        
+    }
 }
