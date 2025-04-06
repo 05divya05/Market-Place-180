@@ -1,4 +1,4 @@
-package src;
+
 import java.sql.*;
 
 public class RatingDatabase implements DatabaseInterface {

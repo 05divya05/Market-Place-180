@@ -1,4 +1,3 @@
-package src;
 
 public class RatingEntry {
     private String sellerID;
