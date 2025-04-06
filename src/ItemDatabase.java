@@ -1,11 +1,19 @@
+package src;
 
+import java.sql.*;
 
-public class ItemDatabase implements DatabaseInterface
-{
+public class ItemDatabase implements DatabaseInterface {
+
+    private Connection conn;
+
+    public ItemDatabase(Connection conn) {
+        this.conn = conn;
+    }
+
     @Override
-    public void save(Item item) {
-        String sql = "INSERT INTO items (itemID, name, description, price, category, sellerID) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+    public boolean save(Object obj) {
+        Item item = (Item) obj;
+        String sql = "INSERT INTO items (itemID, name, description, price, category, sellerID) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, item.getItemID());
             pstmt.setString(2, item.getName());
@@ -16,8 +24,8 @@ public class ItemDatabase implements DatabaseInterface
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-           // return false;
         }
+        return false;
     }
 
     @Override
@@ -50,37 +58,25 @@ public class ItemDatabase implements DatabaseInterface
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
         return false;
     }
 
     @Override
-    public void update(Object item) {
+    public boolean update(Object obj) {
+        Item item = (Item) obj;
         String sql = "UPDATE items SET name=?, description=?, price=?, category=? WHERE itemID=?";
-
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setString(1, item.getName());
-
             pstmt.setString(2, item.getDescription());
-
             pstmt.setDouble(3, item.getPrice());
-
             pstmt.setString(4, item.getCategory());
-
             pstmt.setString(5, item.getItemID());
-
             return pstmt.executeUpdate() > 0;
-
         } catch (SQLException e) {
-
             e.printStackTrace();
-
-            return false;
-
         }
-
-
+        return false;
     }
 }
+
