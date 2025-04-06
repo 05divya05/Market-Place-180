@@ -1,11 +1,9 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.*;
 
 
-public class UserProfile implements Users ,Serializable {
+public class UserProfile implements Users , Serializable {
     private String username;
     private ArrayList<String> friends;
     private ArrayList<String> blockedFriends;

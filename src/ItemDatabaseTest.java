@@ -1,5 +1,3 @@
-package src;
-
 public class ItemDatabaseTest {
     @Test
     public void testInsertAndLoad() {
