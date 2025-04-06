@@ -1,14 +1,31 @@
 
 import java.sql.*;
-
+/**
+ * The RatingDatabase class handles storing and retrieving seller ratings.
+ * Provides methods to save new ratings, load average ratings, and delete all ratings for a seller.
+ * This class uses JDBC and a provided SQL connection.
+ *
+ * @author Sultan AlQahtani
+ * @version 4/5/2025
+ */
 public class RatingDatabase implements DatabaseInterface {
 
     private Connection conn;
 
+    /**
+     * Constructs a RatingDatabase with the given SQL connection.
+     *
+     * @param conn the SQL database connection
+     */
+
     public RatingDatabase(Connection conn) {
         this.conn = conn;
     }
-
+    /**
+     * Saves a new rating entry to the database.
+     *
+     * @param obj the rating to save (must be a RatingEntry object)
+     */
     @Override
     public void save(Object obj) {
         RatingEntry entry = (RatingEntry) obj;
@@ -23,7 +40,12 @@ public class RatingDatabase implements DatabaseInterface {
             ;
         }
     }
-
+    /**
+     * Loads the average rating score for a seller.
+     *
+     * @param sellerID the ID of the seller
+     * @return the average rating score as a double, or 0.0 if no ratings found
+     */
     @Override
     public Double load(String sellerID) {
         String sql = "SELECT AVG(score) AS average FROM ratings WHERE sellerID = ?";
@@ -38,7 +60,12 @@ public class RatingDatabase implements DatabaseInterface {
         }
         return 0.0;
     }
-
+    /**
+     * Deletes all ratings for a given seller.
+     *
+     * @param sellerID the ID of the seller
+     * @return true if ratings were deleted, false otherwise
+     */
     @Override
     public boolean delete(String sellerID) {
         String sql = "DELETE FROM ratings WHERE sellerID = ?";
@@ -50,7 +77,11 @@ public class RatingDatabase implements DatabaseInterface {
             return false;
         }
     }
-
+    /**
+     * Updates are not supported for ratings. Method is unused.
+     *
+     * @param obj ignored
+     */
     @Override
     public void update(Object obj) {
         ;
