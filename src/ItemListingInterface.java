@@ -1,5 +1,3 @@
-package src;
-
 import java.util.ArrayList;
 /**
  * ItemListingInterface is for liking, favoriting, searching items, etc.

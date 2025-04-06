@@ -1,5 +1,3 @@
-
-
 public class ItemDatabase implements DatabaseInterface
 {
     @Override
