@@ -1,56 +1,29 @@
-import java.util.ArrayList;
+import java.util.List;
+
 /**
- * ItemListingInterface is for liking, favoriting, searching items, etc.
- * Not for creating item!
+ * The NewsFeedInterface provides methods for displaying items based on various criteria.
+ * It supports operations like fetching the latest items, popular items, searching for items,
+ * and sorting items by price in ascending or descending order.
  *
  * @author Yihang Li
  * @version 4/1/2025
  */
 public interface ItemListingInterface {
-
     void incrementUpvotes();
-
     void incrementDownvotes();
-
     String getAuthor();
-
     void setAuthor(String author);
-
-    String getCaption();
-
-    void setCaption(String caption);
-
-    String getImagePath();
-
-    void setImagePath(String imagePath);
-
+    void getTitle();
+    void setTitle(String title);
+    String getImaagePath();
+    void setImaagePath(String imaagePath);
     String getDate();
-
     void setDate(String date);
-
-    int getUpvotes();
-
-    void setUpvotes(int upvotes);
-
     int getDownvotes();
-
     void setDownvotes(int downvotes);
-
-    ArrayList<Commentable> getComments();
-
-    void addComment(Commentable comment);
-
-    void setComments(ArrayList<Commentable> comments);
-
     String toString();
 
-    static void deletePost(String caption) {}
+    static void deletePost(String title) {
 
-    static ArrayList<Commentable> findComments(String captionOfPost) {
-        return null;
-    }
-
-    static ArrayList<Commentable> findCommentsForUser(String user1) {
-        return null;
     }
 }
