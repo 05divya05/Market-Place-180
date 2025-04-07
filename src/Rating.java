@@ -1,34 +1,39 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
 
 /**
- * The Rating class implements the RatingInterface to handle seller ratings.
- * Uses RatingDatabase for database operations.
+ * The Rating class handles adding ratings and retrieving average ratings for sellers.
+ * It uses the RatingDatabase to interact with the database.
+ * Example:
+ * Rating rating = new Rating(connection);
+ * rating.addRating("seller1", "buyer1", 4.5);
+ * double average = rating.getAverageRating("seller1");
  *
  *
  * @author Yihang Li
- * @version 4/5/2025
+ * @version 4/6/2025
  */
 public class Rating implements RatingInterface {
 
     private RatingDatabase ratingDatabase;
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.0");
 
     /**
-     * Constructs a Rating object with a specified database file path.
+     * Initializes a Rating object with a given SQL connection.
      *
-     * @param dbPath The path to the database file.
-     * @throws SQLException If a database access error occurs.
+     * @param conn The SQL connection to the ratingdatabase.
      */
-    public Rating(String dbPath) throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-        ratingDatabase = new RatingDatabase(conn);
+    public Rating(Connection conn) {
+        this.ratingDatabase = new RatingDatabase(conn);
     }
 
     /**
-     * Adds a rating for a specified seller.
+     * Adds a new rating for a seller from a buyer.
      *
      * @param sellerID The ID of the seller.
      * @param buyerID The ID of the buyer.
-     * @param score The numerical score of the rating (0.0 to 5.0).
+     * @param score The rating score (0.0 to 5.0).
      */
     @Override
     public void addRating(String sellerID, String buyerID, double score) {
@@ -37,17 +42,18 @@ public class Rating implements RatingInterface {
         }
 
         RatingEntry entry = new RatingEntry(sellerID, buyerID, score);
-        ratingDatabase.save(entry);  // Using RatingDatabase's save method
+        ratingDatabase.save(entry);
     }
 
     /**
-     * Retrieves the average rating.
+     * Gets the average rating for a specific seller, formatted to one decimal place.
      *
      * @param sellerID The ID of the seller.
-     * @return The average rating score.
+     * @return The average rating of the seller formatted to one decimal place
      */
     @Override
     public double getAverageRating(String sellerID) {
-        return ratingDatabase.load(sellerID);
+        double average = ratingDatabase.load(sellerID);
+        return Double.parseDouble(String.format("%.1f", average));
     }
 }
