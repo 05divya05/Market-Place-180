@@ -14,6 +14,7 @@ public class Item implements ItemInterface {
     private double price;
     private String category;
     private final String sellerID;
+    private boolean isDeleted; //added by steven
 
     public Item(String name, String description, double price, String category, String sellerID) {
         this.itemID = UUID.randomUUID().toString();
@@ -22,6 +23,7 @@ public class Item implements ItemInterface {
         this.price = price;
         this.category = category;
         this.sellerID = sellerID;
+        this.isDeleted = false;
     }
 
     @Override
@@ -36,6 +38,15 @@ public class Item implements ItemInterface {
 
     @Override
     public void setName(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Item name cannot be null");
+        }
+        if (name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Item name cannot be empty");
+        }
+        if (name.length() > 30) {
+            throw new IllegalArgumentException("Item name cannot exceed 30 characters");
+        }
         this.name = name;
     }
 
@@ -46,17 +57,30 @@ public class Item implements ItemInterface {
 
     @Override
     public void setDescription(String description) {
+        if (description == null) {
+            throw new IllegalArgumentException("Description cannot be null");
+        }
+        if (description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be empty");
+        }
+        if (description.length() > 1500) {
+            throw new IllegalArgumentException("Description cannot exceed 1500 characters");
+        }
         this.description = description;
     }
 
     @Override
     public double getPrice() {
-        return price;
+        return Math.round(price * 100.0) / 100.0; //ensure 2 decimal places
     }
 
     @Override
     public void setPrice(double price) {
-        this.price = price;
+        //ensure price is not negative
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+        this.price = Math.round(price * 100.0) / 100.0; //ensure 2 decimal places
     }
 
     @Override
@@ -66,6 +90,12 @@ public class Item implements ItemInterface {
 
     @Override
     public void setCategory(String category) {
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
+        }
+        if (category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be empty");
+        }
         this.category = category;
     }
 
@@ -76,7 +106,15 @@ public class Item implements ItemInterface {
 
     @Override
     public void deleteItem() {
-        this.itemID = null;
-        
+        this.isDeleted = true;
+    }
+
+    /**
+     * checks if item has been marked as deleted
+     *
+     * @return true if the item has been deleted, else false
+     */
+    public boolean isDeleted() {
+        return isDeleted;
     }
 }
