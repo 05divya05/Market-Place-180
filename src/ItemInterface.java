@@ -76,5 +76,15 @@ public interface ItemInterface {
      */
     String getSellerID();
 
+    /**
+     * marks item as deleted (soft delete)
+     */
     void deleteItem();
+
+    /**
+     * checks if this item has been marked as deleted
+     *
+     * @return true if item has been deleted, else false
+     */
+    boolean isDeleted();
 }
