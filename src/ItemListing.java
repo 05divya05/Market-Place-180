@@ -18,11 +18,11 @@ public class ItemListing implements ItemListingInterface, Serializable {
 
         try (PrintWriter writer = new PrintWriter(new FileWriter("itemListing.txt", true))) {
             writer.println(author + "," + title + "," + imagePath + "," + date + "," + upvotes + "," + downvotes);
-        } catch (IO Exception e){
+        } catch (IOException e){
             System.out.println("An error occurred while creating the itemListing" + e.getMessage());
         }
     }
-    public ItemListing(){
+
         public static void deletePost(String title){
             System.out.println("Deleting post " + title);
 
@@ -51,65 +51,65 @@ public class ItemListing implements ItemListingInterface, Serializable {
                 System.out.println("Error writing to original file");
             }
         }
-    }
+
 
     @Override
     public void incrementUpvotes() {
-
+        this.upvotes++;
     }
 
     @Override
     public void incrementDownvotes() {
-
+        this.downvotes++;
     }
 
     @Override
     public String getAuthor() {
-        return "";
+        return author;
     }
 
     @Override
     public void setAuthor(String author) {
-
+        this.author = author;
     }
 
     @Override
-    public void getTitle() {
-
+    public String getTitle() {
+        return title;
     }
 
     @Override
     public void setTitle(String title) {
-
+        this.title = title;
     }
 
     @Override
-    public String getImaagePath() {
-        return "";
+    public String getImagePath() {
+        return imagePath;
     }
 
     @Override
-    public void setImaagePath(String imaagePath) {
-
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override
     public String getDate() {
-        return "";
+        return date;
     }
 
     @Override
     public void setDate(String date) {
-
+        this.date = date;
     }
 
     @Override
     public int getDownvotes() {
-        return 0;
+        return downvotes;
     }
 
     @Override
     public void setDownvotes(int downvotes) {
-
+        this.downvotes = downvotes;
     }
 }

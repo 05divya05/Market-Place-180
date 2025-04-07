@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * The NewsFeedInterface provides methods for displaying items based on various criteria.
  * It supports operations like fetching the latest items, popular items, searching for items,
@@ -13,10 +11,10 @@ public interface ItemListingInterface {
     void incrementDownvotes();
     String getAuthor();
     void setAuthor(String author);
-    void getTitle();
+    String getTitle();
     void setTitle(String title);
-    String getImaagePath();
-    void setImaagePath(String imaagePath);
+    String getImagePath();
+    void setImagePath(String imagePath);
     String getDate();
     void setDate(String date);
     int getDownvotes();
