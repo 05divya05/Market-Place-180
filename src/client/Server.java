@@ -4,7 +4,7 @@ import java.net.Socket;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class Server extends PasswordProtection implements Runnable {
+public class Server extends PasswordProtection implements Runnable, ServerInterface {
 
     private Socket clientSocket;
 
