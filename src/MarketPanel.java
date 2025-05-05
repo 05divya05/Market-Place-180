@@ -3,31 +3,46 @@ import java.awt.*;
 import java.io.File;
 import java.util.List;
 
+/**
+ * MarketPanel
+ *
+ * Displays the marketplace: a toolbar for search and category filters,
+ * the user's balance, a scrolling list of item panels, and a button
+ * to create a new item. Sellers see Edit/Delete buttons, buyers see
+ * quantity selector, Buy, and Message buttons.
+ *
+ * @version May 3, 2025
+ * @author Yihang Li, Divya Vemireddy, Sultan Al Qahtani, Jay Nitz, Steven Win
+ */
 public class MarketPanel extends JPanel {
 
-    private final MainFrame main;
-    private final Client client;
-    private final String me;
-    private final RatingManager rating;
+    private final MainFrame main;   // reference to main window for panel switching
+    private final Client client;    // network helper
+    private final String me;        // current username
+    private final RatingManager rating; // handles seller rating logic
 
-    private final JLabel balLabel = new JLabel();
-    private final JPanel listPanel;
+    private final JLabel balLabel = new JLabel(); // shows "Balance: $..."
+    private final JPanel listPanel;             // container for item panels
 
+    /**
+     * Build the main marketplace view.
+     * @param frame    main application window
+     * @param client   network client
+     * @param username current logged-in user
+     */
     public MarketPanel(MainFrame frame, Client client, String username) {
-        this.rating = new RatingManager(client);
-        this.main = frame;
+        this.main   = frame;
         this.client = client;
-        this.me = username;
+        this.me     = username;
+        this.rating = new RatingManager(client);
 
         setLayout(new BorderLayout(8, 8));
 
+        // toolbar: search field, category dropdown, Go and Reset buttons
         JTextField searchField = new JTextField(15);
-        JComboBox<String> catBox = new JComboBox<>(new String[]{
-                "All", "Electronics", "Books", "Clothing", "Home"
-        });
+        JComboBox<String> catBox = new JComboBox<>(new String[]{"All","Electronics","Books","Clothing","Home"});
         JButton searchBtn = new JButton("Go");
-        JButton clearBtn = new JButton("Reset");
-
+        JButton clearBtn  = new JButton("Reset");
         JPanel toolBar = new JPanel();
         toolBar.add(new JLabel("Search:"));
         toolBar.add(searchField);
@@ -36,185 +51,168 @@ public class MarketPanel extends JPanel {
         toolBar.add(searchBtn);
         toolBar.add(clearBtn);
 
-        JPanel topBar = new JPanel(new BorderLayout(10, 0));
+        // top bar: welcome message, balance, Messages button
+        JPanel topBar = new JPanel(new BorderLayout(10,0));
         topBar.add(new JLabel("Welcome, " + me), BorderLayout.WEST);
-
         balLabel.setFont(balLabel.getFont().deriveFont(Font.BOLD));
         topBar.add(balLabel, BorderLayout.CENTER);
-
         JButton msgBtn = new JButton("Messages");
-        msgBtn.addActionListener(e ->
-                new ChatListDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        main, client, me).setVisible(true));
+        // explanation: show dialog listing chat threads
+        msgBtn.addActionListener(e -> new ChatListDialog(
+                SwingUtilities.getWindowAncestor(this), main, client, me)
+                .setVisible(true));
         topBar.add(msgBtn, BorderLayout.EAST);
 
+        // put toolbar above topBar
         JPanel north = new JPanel(new BorderLayout());
         north.add(toolBar, BorderLayout.NORTH);
         north.add(topBar, BorderLayout.SOUTH);
         add(north, BorderLayout.NORTH);
 
+        // main list area: vertical box layout inside a scroll pane
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         add(new JScrollPane(listPanel), BorderLayout.CENTER);
 
+        // create item button at the bottom
         JButton createBtn = new JButton("Create Item");
         createBtn.addActionListener(e -> {
             new CreateItemDialog(main, client, me).setVisible(true);
-            refreshMarket(listPanel, "", "All");
+            // refresh after returning from dialog
+            refreshMarket("", "All");
         });
         add(createBtn, BorderLayout.SOUTH);
 
-        searchBtn.addActionListener(e ->
-                refreshMarket(listPanel,
-                        searchField.getText().trim(),
-                        (String) catBox.getSelectedItem()));
-
+        // search and reset actions
+        searchBtn.addActionListener(e -> refreshMarket(
+                searchField.getText().trim(), (String)catBox.getSelectedItem()));
         clearBtn.addActionListener(e -> {
             searchField.setText("");
             catBox.setSelectedIndex(0);
-            refreshMarket(listPanel, "", "All");
+            refreshMarket("", "All");
         });
 
+        // initial load
         refreshBalance();
-        refreshMarket(listPanel, "", "All");
+        refreshMarket("", "All");
     }
 
+    /** Send BALANCE request and update the balance label. */
     public void refreshBalance() {
         client.send("BALANCE|" + me);
         balLabel.setText("Balance: $" + client.read());
     }
 
-    private void refreshMarket(JPanel target, String keyword, String category) {
-        target.removeAll();
-
+    /**
+     * Load items from server, filter by keyword/category,
+     * and populate listPanel with item entries.
+     */
+    private void refreshMarket(String keyword, String category) {
+        listPanel.removeAll();
         client.send("GET_ITEMS");
         List<String> items = client.readBlock();
         for (String line : items) {
-            String[] p = line.split(",", 7);
+            String[] p = line.split(",",7);
             if (p.length != 7) continue;
-
-            String title = p[0], desc = p[1], price = p[2],
-                    seller = p[3], img = p[4], cat = p[5], qtyStr = p[6];
-
+            String title = p[0], desc = p[1], price = p[2], seller = p[3], img = p[4], cat = p[5], qtyStr = p[6];
+            // skip if keyword not in title or description
             if (!keyword.isEmpty() &&
                     !(title.toLowerCase().contains(keyword.toLowerCase())
-                            || desc.toLowerCase().contains(keyword.toLowerCase())))
-                continue;
+                            || desc.toLowerCase().contains(keyword.toLowerCase()))) continue;
+            // skip if category doesn't match
             if (!"All".equals(category) && !category.equalsIgnoreCase(cat)) continue;
-
             int qty = Integer.parseInt(qtyStr);
-            target.add(createItemPanel(title, desc, price, seller, img, cat, qty));
+            listPanel.add(createItemPanel(title, desc, price, seller, img, cat, qty));
         }
-        target.revalidate();
-        target.repaint();
+        listPanel.revalidate();
+        listPanel.repaint();
     }
 
+    /**
+     * Build a panel showing one item's details and action buttons.
+     */
     private JPanel createItemPanel(String title, String desc, String price,
                                    String seller, String img, String cat, int qty) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
-        /* 左侧图片 */
+        // left: item image (scaled if file exists)
         if (!img.isBlank() && new File(img).exists()) {
             ImageIcon icon = new ImageIcon(img);
-            Image scaled = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            Image scaled = icon.getImage().getScaledInstance(100,100,Image.SCALE_SMOOTH);
             panel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.WEST);
         }
 
-        /* 中间文字 */
+        // center: text info area
         double avg = rating.getAverage(seller);
-        String ratingStr = avg < 0 ? "No rating" : String.format("%.1f / 5", avg);
-
-        JTextArea info = new JTextArea("""
-                Title: %s
-                Description: %s
-                Price: $%s
-                Category: %s
-                Quantity: %d
-                Seller: %s
-                Rating: %s
-                """.formatted(title, desc, price, cat, qty, seller, ratingStr));
+        String ratingStr = avg<0 ? "No rating" : String.format("%.1f / 5", avg);
+        JTextArea info = new JTextArea(String.format(
+                "Title: %s\nDescription: %s\nPrice: $%s\nCategory: %s\nQuantity: %d\nSeller: %s\nRating: %s\n",
+                title,desc,price,cat,qty,seller,ratingStr));
         info.setEditable(false);
         panel.add(info, BorderLayout.CENTER);
 
-        /* 右侧按钮区 */
+        // right: buttons depending on seller vs buyer
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
-
-        if (seller.equals(me)) {                /* ====== 卖家视角 ====== */
-
-            JButton editBtn = new JButton("Edit");
-            editBtn.addActionListener(e -> {
-                String fileLine = String.join(",", title, desc, price,
-                        seller, img, cat, String.valueOf(qty));
+        if (seller.equals(me)) {
+            // seller: Edit and Delete
+            JButton edit = new JButton("Edit");
+            edit.addActionListener(e -> {
+                String fileLine = String.join(",", title, desc, price, seller, img, cat, String.valueOf(qty));
                 new EditItemDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        client, me, fileLine
+                        SwingUtilities.getWindowAncestor(this), client, me, fileLine
                 ).setVisible(true);
-
-                refreshMarket(listPanel, "", "All");
+                refreshMarket("","All");
             });
-            right.add(editBtn);
+            right.add(edit);
 
-            JButton delBtn = new JButton("Delete");
-            delBtn.addActionListener(e -> {
-                int c = JOptionPane.showConfirmDialog(this,
-                        "Delete this item?", "Confirm", JOptionPane.YES_NO_OPTION);
-                if (c == JOptionPane.YES_OPTION) {
-                    client.send("DELETE_ITEM|" + me + "|" + title);
-                    if ("SUCCESS".equals(client.read())) {
-                        JOptionPane.showMessageDialog(this, "Item deleted.");
-                        refreshMarket(listPanel, "", "All");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Delete failed.");
-                    }
+            JButton del = new JButton("Delete");
+            del.addActionListener(e -> {
+                if (JOptionPane.showConfirmDialog(this, "Delete this item?", "Confirm", JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION) {
+                    client.send("DELETE_ITEM|"+me+"|"+title);
+                    if ("SUCCESS".equals(client.read())) JOptionPane.showMessageDialog(this, "Deleted.");
+                    else JOptionPane.showMessageDialog(this, "Delete failed.");
+                    refreshMarket("","All");
                 }
             });
-            right.add(delBtn);
-
+            right.add(del);
         } else {
-
+            // buyer: quantity selector, Buy, Message
             Integer[] nums = new Integer[qty];
-            for (int i = 0; i < qty; i++) nums[i] = i + 1;
+            for (int i=0;i<qty;i++) nums[i]=i+1;
             JComboBox<Integer> qtyBox = new JComboBox<>(nums);
             right.add(qtyBox);
 
-            JButton buyBtn = new JButton("Buy");
-            buyBtn.addActionListener(e -> {
-                int want = (Integer) qtyBox.getSelectedItem();
-                client.send("BUY_ITEM|%s|%s|%s|%d".formatted(me, title, seller, want));
+            JButton buy = new JButton("Buy");
+            buy.addActionListener(e -> {
+                int want = (Integer)qtyBox.getSelectedItem();
+                client.send(String.format("BUY_ITEM|%s|%s|%s|%d", me,title,seller,want));
                 String resp = client.read();
-                if (resp != null && resp.startsWith("SUCCESS")) {
+                if (resp!=null && resp.startsWith("SUCCESS")) {
                     double newBal = Double.parseDouble(resp.split("\\|")[1]);
-                    balLabel.setText("Balance: $" + newBal);
+                    balLabel.setText("Balance: $"+newBal);
                     JOptionPane.showMessageDialog(this, "Purchase successful!");
-                    /* 评分 */
-                    String s = JOptionPane.showInputDialog(this,
-                            "Rate the seller (0‑5):", "5");
-                    if (s != null) {
-                        try {
-                            double sc = Double.parseDouble(s);
-                            if (sc >= 0 && sc <= 5) rating.addRating(me, seller, sc);
-                        } catch (NumberFormatException ignore) {
-                        }
-                    }
-                    refreshMarket(listPanel, "", "All");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Purchase failed.");
-                }
+                    // ask buyer to rate seller
+                    String s = JOptionPane.showInputDialog(this, "Rate seller (0-5):","5");
+                    if (s!=null) try {
+                        double sc = Double.parseDouble(s);
+                        if (sc>=0 && sc<=5) rating.addRating(me,seller,sc);
+                    } catch (NumberFormatException ignored) {}
+                    refreshMarket("","All");
+                } else JOptionPane.showMessageDialog(this, "Purchase failed.");
             });
-            right.add(buyBtn);
+            right.add(buy);
 
-            JButton msgBtn = new JButton("Message");
-            msgBtn.addActionListener(e -> {
+            JButton msg = new JButton("Message");
+            msg.addActionListener(e -> {
                 ChatPanel cp = new ChatPanel(main, client, me, seller);
-                main.addPanel(cp, "Chat-" + seller);
-                main.showPanel("Chat-" + seller);
+                main.addPanel(cp, "Chat-"+seller);
+                main.showPanel("Chat-"+seller);
             });
-            right.add(msgBtn);
+            right.add(msg);
         }
-
         panel.add(right, BorderLayout.EAST);
         return panel;
     }
