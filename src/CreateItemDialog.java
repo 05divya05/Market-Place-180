@@ -37,26 +37,32 @@ public class CreateItemDialog extends JDialog {
         setLayout(new GridLayout(8, 2));
 
         // Input fields
-        JTextField titleField    = new JTextField();
-        JTextField descField     = new JTextField();
-        JTextField priceField    = new JTextField();
-        JComboBox<String> categoryBox = new JComboBox<>(new String[]{
+        JTextField titleField = new JTextField();
+        JTextField descField = new JTextField();
+        JTextField priceField = new JTextField();
+        JComboBox<String> categoryBox = new JComboBox<>(new String[] {
                 "Electronics", "Books", "Clothing", "Home", "Other"
         });
         JTextField quantityField = new JTextField();
-
         JTextField imagePathField = new JTextField();
         imagePathField.setEditable(false);
         JButton browseBtn = new JButton("Choose Image");
 
         // Layout helpers
-        add(new JLabel("Title:"));       add(titleField);
-        add(new JLabel("Description:")); add(descField);
-        add(new JLabel("Price:"));       add(priceField);
-        add(new JLabel("Category:"));    add(categoryBox);
-        add(new JLabel("Quantity:"));    add(quantityField);
-        add(new JLabel("Image Path:"));  add(imagePathField);
-        add(new JLabel(""));             add(browseBtn); // empty label as spacer
+        add(new JLabel("Title:"));
+        add(titleField);
+        add(new JLabel("Description:"));
+        add(descField);
+        add(new JLabel("Price:"));
+        add(priceField);
+        add(new JLabel("Category:"));
+        add(categoryBox);
+        add(new JLabel("Quantity:"));
+        add(quantityField);
+        add(new JLabel("Image Path:"));
+        add(imagePathField);
+        add(new JLabel(""));
+        add(browseBtn); // empty label as spacer
 
         // explanation: open file chooser and copy chosen path to read‑only field
         browseBtn.addActionListener(e -> {
@@ -73,18 +79,17 @@ public class CreateItemDialog extends JDialog {
 
         // explanation: validate input then send ADD_ITEM command to server
         createBtn.addActionListener(e -> {
-            String title     = titleField.getText().trim();
-            String desc      = descField.getText().trim();
-            String price     = priceField.getText().trim();
-            String category  = (String) categoryBox.getSelectedItem();
-            String quantity  = quantityField.getText().trim();
+            String title = titleField.getText().trim();
+            String desc = descField.getText().trim();
+            String price = priceField.getText().trim();
+            String category = (String) categoryBox.getSelectedItem();
+            String quantity = quantityField.getText().trim();
             String imagePath = imagePathField.getText().trim();
 
             if (title.isEmpty() || desc.isEmpty() || price.isEmpty() || quantity.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "All fields are required.");
                 return;
             }
-
             client.send("ADD_ITEM|" + sellerUsername + "|" + title + "|" + desc + "|" + price +
                     "|" + category + "|" + quantity + "|" + imagePath);
             String res = client.read();

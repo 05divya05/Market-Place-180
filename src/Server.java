@@ -1,7 +1,6 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Server
@@ -14,16 +13,27 @@ import java.util.concurrent.*;
  */
 public class Server {
     private static final int PORT=4242;
-    private static final UserManager    users = new UserManager();
-    private static final ItemManager    items;
+    private static final UserManager users = new UserManager();
+    private static final ItemManager items;
     private static final Message chats = new Message();
-    static{ ItemManager tmp=null; try{tmp=new ItemManager();}catch(IOException ignore){} items=tmp; }
 
-    public static void main(String[]a){
+    static {
+        ItemManager tmp = null;
+        try {
+            tmp = new ItemManager();//Try load existing itemsListing.txt
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        items=tmp;
+    }
+
+    public static void main(String[] a) {
         System.out.println("Server on "+PORT);
-        try(ServerSocket ss=new ServerSocket(PORT)){
+        try(ServerSocket ss=new ServerSocket(PORT)) {
             while(true) new Thread(new Handler(ss.accept())).start();
-        }catch(IOException e){e.printStackTrace();}
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -42,9 +52,9 @@ public class Server {
                     BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                     PrintWriter out = new PrintWriter(sock.getOutputStream(), true)
             ) {
-                String req;
-                while ((req = in.readLine()) != null) {
-                    String[] p = req.split("\\|");
+                String request;
+                while ((request = in.readLine()) != null) {
+                    String[] p = request.split("\\|");
                     switch (p[0]) {
                         case "REGISTER":
                             // register a new user: username, email, password
@@ -78,12 +88,12 @@ public class Server {
                                 break;
                             }
                             String seller = p[1];
-                            String title  = p[2];
-                            String desc   = p[3];
-                            double price  = Double.parseDouble(p[4]);
+                            String title = p[2];
+                            String desc = p[3];
+                            double price = Double.parseDouble(p[4]);
                             String category = p[5];
-                            int qty       = Integer.parseInt(p[6]);
-                            String image  = (p.length == 8) ? p[7] : "";
+                            int qty = Integer.parseInt(p[6]);
+                            String image = (p.length == 8) ? p[7] : "";
                             if (image.isBlank()) image = "empty";
                             ItemListing it = new ItemListing(seller, title, desc, price, category, image, qty);
                             boolean added = items.addItem(it);
@@ -125,7 +135,7 @@ public class Server {
                                 out.println("FAIL");
                                 break;
                             }
-                            double cost     = buyIt.getPrice() * want;
+                            double cost = buyIt.getPrice() * want;
                             double buyerBal = users.getBalance(p[1]);
                             if (buyerBal < cost) {
                                 out.println("FAIL");
@@ -203,7 +213,8 @@ public class Server {
                                         count++;
                                     }
                                 }
-                            } catch (IOException ignore) {
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                             if (count == 0) {
                                 out.println("NONE");
@@ -218,10 +229,15 @@ public class Server {
                             break;
                     }
                 }
-            } catch (IOException ignore) {
+            } catch (IOException e) {
                 // client disconnected or error occurred
+                e.printStackTrace();
             } finally {
-                try { sock.close(); } catch (IOException ignored) { }
+                try {
+                    sock.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

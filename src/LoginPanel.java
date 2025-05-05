@@ -14,11 +14,11 @@ import java.awt.*;
 public class LoginPanel extends JPanel {
 
     private final MainFrame mainFrame; // main window for screen switching
-    private final Client client;       // network helper
+    private final Client client;// network helper
 
     public LoginPanel(MainFrame mf, Client cl) {
         this.mainFrame = mf;
-        this.client    = cl;
+        this.client = cl;
         buildGui();
     }
 
@@ -33,18 +33,19 @@ public class LoginPanel extends JPanel {
 
         //form panel: 3 rows, 2 columns
         JPanel form = new JPanel(new GridLayout(3, 2, 8, 8));
-
-        JTextField     user  = new JTextField(16);
-        JTextField     email = new JTextField(16);
-        JPasswordField pass  = new JPasswordField(16);
-
-        form.add(new JLabel("Username:"));  form.add(user);
-        form.add(new JLabel("Email:"));     form.add(email);
-        form.add(new JLabel("Password:"));  form.add(pass);
+        JTextField user = new JTextField(16);
+        JTextField email = new JTextField(16);
+        JPasswordField pass = new JPasswordField(16);
+        form.add(new JLabel("Username:"));
+        form.add(user);
+        form.add(new JLabel("Email:"));
+        form.add(email);
+        form.add(new JLabel("Password:"));
+        form.add(pass);
 
         // button row with FlowLayout
         JButton login = new JButton("Login");
-        JButton reg   = new JButton("Register");
+        JButton reg = new JButton("Register");
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         btnRow.add(login);
         btnRow.add(reg);
@@ -62,7 +63,6 @@ public class LoginPanel extends JPanel {
             String u  = user.getText().trim();
             String em = email.getText().trim();
             String pw = new String(pass.getPassword());
-
             client.send("LOGIN|" + u + "|" + em + "|" + pw);
             String resp = client.read();
             if ("SUCCESS".equals(resp)) {

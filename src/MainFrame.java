@@ -31,25 +31,27 @@ public class MainFrame extends JFrame {
 
         main.add(new LoginPanel(this, client), "Login");
         add(main);
-
         setVisible(true);
     }
 
     /** Show a screen that has already been added. */
-    public void showPanel(String name) { cards.show(main, name); }
+    public void showPanel(String name) {
+        cards.show(main, name);
+    }
 
     /** Add a new screen to the CardLayout. */
-    public void addPanel(JPanel p, String name) { main.add(p, name); }
+    public void addPanel(JPanel p, String name) {
+        main.add(p, name);
+    }
 
     /**
      * Called by LoginPanel after successful login. Creates the market screen
      * and switches to it.
      */
     public void loginSuccess(String username, String email, double balance) {
-        this.currentUser    = username;
-        this.currentEmail   = email;
+        this.currentUser = username;
+        this.currentEmail = email;
         this.currentBalance = balance;
-
         MarketPanel market = new MarketPanel(this, client, currentUser);
         addPanel(market, "Market");
         showPanel("Market");
@@ -67,8 +69,14 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public String getCurrentUser() { return currentUser; }
-    public double getBalance()     { return currentBalance; }
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
+    public double getBalance() {
+        return currentBalance;
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MainFrame::new);
     }

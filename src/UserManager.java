@@ -29,7 +29,8 @@ public class UserManager implements UserManagerInterface {
         try (PrintWriter pw = new PrintWriter(new FileWriter(USER_FILE, true))) {
             pw.println(u + "," + e + "," + p + ",100.0");
             return true;
-        } catch (IOException ignore) {
+        } catch (IOException registerException) {
+            registerException.printStackTrace();
             return false;
         }
     }
@@ -47,7 +48,9 @@ public class UserManager implements UserManagerInterface {
                     return true;
                 }
             }
-        } catch (IOException ignore) {}
+        } catch (IOException loginException) {
+            loginException.printStackTrace();
+        }
         return false;
     }
 
@@ -68,8 +71,8 @@ public class UserManager implements UserManagerInterface {
                     keep.add(line);
                 }
             }
-        } catch (IOException ignore) {
-
+        } catch (IOException delteException) {
+            delteException.printStackTrace();
         }
         if (!removed) return false;
 
@@ -77,7 +80,8 @@ public class UserManager implements UserManagerInterface {
         try (PrintWriter pw = new PrintWriter(new FileWriter(USER_FILE))) {
             for (String s : keep) pw.println(s);
             return true;
-        } catch (IOException ignore) {
+        } catch (IOException writeException) {
+            writeException.printStackTrace();
             return false;
         }
     }
@@ -95,7 +99,9 @@ public class UserManager implements UserManagerInterface {
                     return Double.parseDouble(f[3]);
                 }
             }
-        } catch (IOException ignore) {}
+        } catch (IOException readException) {
+            readException.printStackTrace();
+        }
         return 0;
     }
 
@@ -117,23 +123,30 @@ public class UserManager implements UserManagerInterface {
                 }
                 lines.add(line);
             }
-        } catch (IOException ignore) {}
+        } catch (IOException readException) {
+            readException.printStackTrace();
+        }
         if (!found) return false;
 
         // explanation: overwrite file with updated lines
         try (PrintWriter pw = new PrintWriter(new FileWriter(USER_FILE))) {
             for (String s : lines) pw.println(s);
             return true;
-        } catch (IOException ignore) {
+        } catch (IOException printException) {
+            printException.printStackTrace();
             return false;
         }
     }
 
     /** Check if a username already exists. */
-    @Override public boolean userExists(String u) { return check(0, u); }
+    @Override public boolean userExists(String u) {
+        return check(0, u);
+    }
 
     /** Check if an email already exists. */
-    @Override public boolean emailExists(String e) { return check(1, e); }
+    @Override public boolean emailExists(String e) {
+        return check(1, e);
+    }
 
     /**
      * Helper: check column idx (0=name,1=email) for a value.
@@ -147,8 +160,8 @@ public class UserManager implements UserManagerInterface {
                     return true;
                 }
             }
-        } catch (IOException ignore) {
-
+        } catch (IOException readException) {
+            readException.printStackTrace();
         }
         return false;
     }

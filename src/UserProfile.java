@@ -25,7 +25,7 @@ public class UserProfile implements Users {
     public UserProfile(String username, String password, String email) {
         this.username = username;
         this.password = password;
-        this.email    = email;
+        this.email = email;
     }
 
     @Override
@@ -91,10 +91,10 @@ public class UserProfile implements Users {
                 if (username.equals(seller)) {
                     // create Item with at least 6 fields
                     String title = parts[0];
-                    String desc  = parts[1];
+                    String desc = parts[1];
                     double price = Double.parseDouble(parts[2]);
-                    String cat   = parts[3];
-                    String img   = parts.length > 5 ? parts[5] : "";
+                    String cat = parts[3];
+                    String img = parts.length > 5 ? parts[5] : "";
                     items.add(new Item(title, desc, price, cat, seller, img));
                 }
             }

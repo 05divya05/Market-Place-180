@@ -15,71 +15,81 @@ import java.io.File;
  */
 public class EditItemDialog extends JDialog {
 
-    /** Client used for server communication. */
-    private final Client client;
-    /** Username of the seller who owns the item. */
-    private final String seller;
-    /** Original title (primary key) used to identify the record on the server. */
-    private final String origTitle;
+    private final Client client;// for server communication
+    private final String seller;// seller username
+    private final String origTitle;// original title used as primary key
 
     private final JTextField tfDesc  = new JTextField();
     private final JTextField tfPrice = new JTextField();
-    private final JComboBox<String> boxCat =
-            new JComboBox<>(new String[]{"Electronics","Books","Clothing","Home","Sports"});
-    private final JTextField tfImg   = new JTextField(); // read‑only, shows chosen path
-    private final JComboBox<Integer> boxQty =
-            new JComboBox<>(java.util.stream.IntStream.rangeClosed(1,99)
-                    .boxed().toArray(Integer[]::new));
+    private final JComboBox<String> boxCat = new JComboBox<>(
+            new String[]{"Electronics","Books","Clothing","Home","Sports"}
+    );
+    private final JTextField tfImg = new JTextField(); // read-only image path
+    private final JComboBox<Integer> boxQty = new JComboBox<>(
+            java.util.stream.IntStream.rangeClosed(1, 99)
+                    .boxed().toArray(Integer[]::new)
+    );
 
     /**
-     * Builds the dialog and pre‑fills all fields with existing values.
-     *
-     * @param owner      parent window for modality/centering
-     * @param client     network client
-     * @param seller     username of the item owner
-     * @param fileLine   CSV string: title,desc,price,seller,img,cat,qty
+     * Initialize dialog and populate fields from a CSV line.
+     * @param owner    parent window
+     * @param client   network client
+     * @param seller   seller username
+     * @param fileLine CSV: title,desc,price,seller,img,cat,qty
      */
-    public EditItemDialog(Window owner, Client client, String seller, String fileLine){
+    public EditItemDialog(Window owner, Client client, String seller, String fileLine) {
         super(owner, "Edit Item", ModalityType.APPLICATION_MODAL);
         this.client = client;
         this.seller = seller;
 
-        // explanation: split the CSV line and populate input widgets
-        String[] f = fileLine.split(",", 7); // title,desc,price,seller,img,cat,qty
+        // split CSV and fill fields
+        String[] f = fileLine.split(",", 7);
         origTitle = f[0];
-        tfDesc .setText(f[1]);
+        tfDesc.setText(f[1]);
         tfPrice.setText(f[2]);
-        tfImg  .setText(f[4]);
+        tfImg.setText(f[4]);
         tfImg.setEditable(false);
-        boxCat .setSelectedItem(f[5]);
-        boxQty .setSelectedItem(Integer.parseInt(f[6]));
+        boxCat.setSelectedItem(f[5]);
+        boxQty.setSelectedItem(Integer.parseInt(f[6]));
 
         buildGui();
         pack();
         setLocationRelativeTo(owner);
     }
 
-    //GUI
-    private void buildGui(){
-        setLayout(new GridBagLayout());
-        GridBagConstraints g = new GridBagConstraints();
-        g.insets = new Insets(4,4,4,4);
-        g.fill = GridBagConstraints.HORIZONTAL;
-        g.weightx = 1;
+    /**
+     * Assemble the UI using simpler layouts (Border + Grid + Flow).
+     */
+    private void buildGui() {
+        setLayout(new BorderLayout(8, 8));
 
-        addRow("Description:", tfDesc , g, 0);
-        addRow("Price ($):",  tfPrice, g, 1);
-        addRow("Category:",   boxCat , g, 2);
+        // form panel: 5 rows × 2 columns
+        JPanel form = new JPanel(new GridLayout(5, 2, 4, 4));
+        form.add(new JLabel("Description:"));
+        form.add(tfDesc);
+        form.add(new JLabel("Price ($):"));
+        form.add(tfPrice);
+        form.add(new JLabel("Category:"));
+        form.add(boxCat);
 
-        // Image row: text field + Browse button
-        g.gridx = 0; g.gridy = 3; g.weightx = 0; add(new JLabel("Image Path:"), g);
-        JPanel imgPane = new JPanel(new BorderLayout(4,0));
+        // image chooser row
+        form.add(new JLabel("Image Path:"));
+        JPanel imgPane = new JPanel(new BorderLayout(4, 0));
         imgPane.add(tfImg, BorderLayout.CENTER);
         JButton browse = new JButton("Browse…");
         imgPane.add(browse, BorderLayout.EAST);
-        g.gridx = 1; g.weightx = 1; add(imgPane, g);
+        form.add(imgPane);
 
-        // explanation: open file chooser and update image path
+        form.add(new JLabel("Quantity:"));      form.add(boxQty);
+
+        add(form, BorderLayout.CENTER);
+        // Save button at bottom right
+        JButton saveBtn = new JButton("Save");
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnPanel.add(saveBtn);
+        add(btnPanel, BorderLayout.SOUTH);
+
+        // open file chooser when browse clicked
         browse.addActionListener(e -> {
             JFileChooser fc = new JFileChooser();
             fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -89,20 +99,14 @@ public class EditItemDialog extends JDialog {
             }
         });
 
-        addRow("Quantity:", boxQty, g, 4);
-
-        JButton btn = new JButton("Save");
-        g.gridx = 1; g.gridy = 5; add(btn, g);
-        btn.addActionListener(e -> save());
+        // save action: validate price, build command and send
+        saveBtn.addActionListener(e -> save());
     }
 
-    private void addRow(String lab, JComponent comp, GridBagConstraints g, int y){
-        g.gridx = 0; g.gridy = y; g.weightx = 0; add(new JLabel(lab), g);
-        g.gridx = 1; g.weightx = 1; add(comp, g);
-    }
-
-    //save ITEM changes
-    private void save(){
+    /**
+     * Send EDIT_ITEM command to server or show error if price is invalid.
+     */
+    private void save() {
         double price;
         try {
             price = Double.parseDouble(tfPrice.getText().trim());
@@ -111,17 +115,25 @@ public class EditItemDialog extends JDialog {
             return;
         }
 
-        // explanation: build EDIT_ITEM command and send to server
-        String msg = String.join("|", "EDIT_ITEM", seller, origTitle,
+        // build and send command
+        String msg = String.join("|",
+                "EDIT_ITEM", seller, origTitle,
                 tfDesc.getText().trim(), String.valueOf(price),
-                (String) boxCat.getSelectedItem(),
+                (String)boxCat.getSelectedItem(),
                 tfImg.getText().trim(),
-                String.valueOf(boxQty.getSelectedItem()));
+                String.valueOf(boxQty.getSelectedItem())
+        );
         client.send(msg);
 
-        if ("SUCCESS".equals(client.read())) dispose();
-        else warn("Edit failed");
+        if ("SUCCESS".equals(client.read())) {
+            dispose();
+        } else {
+            warn("Edit failed");
+        }
     }
 
-    private void warn(String m){ JOptionPane.showMessageDialog(this, m); }
+    // show a warning dialog
+    private void warn(String m) {
+        JOptionPane.showMessageDialog(this, m);
+    }
 }

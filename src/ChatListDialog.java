@@ -34,9 +34,9 @@ public class ChatListDialog extends JDialog {
      */
     public ChatListDialog(Window owner, MainFrame main, Client cl, String me) {
         super(owner, "Messages", ModalityType.APPLICATION_MODAL);
-        this.main   = main;
+        this.main = main;
         this.client = cl;
-        this.me     = me;
+        this.me = me;
 
         buildGui();
         loadChats();
@@ -50,13 +50,11 @@ public class ChatListDialog extends JDialog {
      */
     private void buildGui() {
         setLayout(new BorderLayout(5, 5));
-
         JList<String> list = new JList<>(model);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane sp = new JScrollPane(list);
         sp.setPreferredSize(new Dimension(250, 300));
         add(sp, BorderLayout.CENTER);
-
         add(new JLabel("Double‑click a user to open chat"), BorderLayout.SOUTH);
 
         list.addMouseListener(new java.awt.event.MouseAdapter() {

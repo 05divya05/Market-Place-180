@@ -31,9 +31,9 @@ public class MarketPanel extends JPanel {
      * @param username current logged-in user
      */
     public MarketPanel(MainFrame frame, Client client, String username) {
-        this.main   = frame;
+        this.main = frame;
         this.client = client;
-        this.me     = username;
+        this.me = username;
         this.rating = new RatingManager(client);
 
         setLayout(new BorderLayout(8, 8));
@@ -42,7 +42,7 @@ public class MarketPanel extends JPanel {
         JTextField searchField = new JTextField(15);
         JComboBox<String> catBox = new JComboBox<>(new String[]{"All","Electronics","Books","Clothing","Home"});
         JButton searchBtn = new JButton("Go");
-        JButton clearBtn  = new JButton("Reset");
+        JButton clearBtn = new JButton("Reset");
         JPanel toolBar = new JPanel();
         toolBar.add(new JLabel("Search:"));
         toolBar.add(searchField);
@@ -114,7 +114,13 @@ public class MarketPanel extends JPanel {
         for (String line : items) {
             String[] p = line.split(",",7);
             if (p.length != 7) continue;
-            String title = p[0], desc = p[1], price = p[2], seller = p[3], img = p[4], cat = p[5], qtyStr = p[6];
+            String title = p[0];
+            String desc = p[1];
+            String price = p[2];
+            String seller = p[3];
+            String img = p[4];
+            String cat = p[5];
+            String qtyStr = p[6];
             // skip if keyword not in title or description
             if (!keyword.isEmpty() &&
                     !(title.toLowerCase().contains(keyword.toLowerCase())

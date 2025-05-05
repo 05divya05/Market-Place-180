@@ -33,14 +33,14 @@ public class ChatPanel extends JPanel {
      * @param peer identifier of the chat partner
      */
     public ChatPanel(MainFrame mf, Client cl, String me, String peer) {
-        this.main  = mf;
+        this.main = mf;
         this.client = cl;
-        this.me    = me;
-        this.peer  = peer;
+        this.me = me;
+        this.peer = peer;
 
-        buildGui();   // assemble Swing components
-        loadHistory(); // initial history load
-        startTimer();  // begin periodic refresh
+        buildGui();// assemble Swing components
+        loadHistory();// initial history load
+        startTimer();// begin periodic refresh
     }
 
     /**
@@ -51,7 +51,7 @@ public class ChatPanel extends JPanel {
         setLayout(new BorderLayout(5, 5));
 
         // Back button switches view to the marketplace
-        JButton back = new JButton("← Back");
+        JButton back = new JButton("< Back");
         back.addActionListener(e -> main.showPanel("Market"));
         add(back, BorderLayout.NORTH);
 
@@ -63,7 +63,6 @@ public class ChatPanel extends JPanel {
         send.addActionListener(e -> {
             String txt = input.getText().trim();
             if (txt.isEmpty()) return;
-
             // explanation: send message to server → wait for SUCCESS → append locally
             client.send("SEND_MESSAGE|" + me + "|" + peer + "|" + txt);
             if ("SUCCESS".equals(client.read())) {
@@ -89,7 +88,9 @@ public class ChatPanel extends JPanel {
     }
 
     /** Convenience wrapper to append a single line to {@link #chatArea}. */
-    private void append(String l) { chatArea.append(l + "\n"); }
+    private void append(String l) {
+        chatArea.append(l + "\n"); 
+    }
 
     /**
      * Starts a Swing timer that refreshes the chat history every two seconds.

@@ -39,12 +39,17 @@ public class Client {
     }
 
     /** Sends a single text line to the server. */
-    public void send(String s) { out.println(s); }
+    public void send(String s) {
+        out.println(s);
+    }
 
     /** Reads one line from the server (returns <code>null</code> on error). */
     public String read() {
-        try { return in.readLine(); }
-        catch (IOException e) { return null; }
+        try {
+            return in.readLine();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /**
@@ -57,7 +62,9 @@ public class Client {
             // explanation: stop when we hit the END marker or the stream closes
             String l;
             while ((l = in.readLine()) != null && !l.equals("END")) r.add(l);
-        } catch (IOException ignore) {}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return r;
     }
 }
