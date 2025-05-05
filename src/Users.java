@@ -60,5 +60,4 @@ public interface Users {
      * @return a list of Item objects for which this user is the seller
      */
     ArrayList<Item> getUserItems();
-
 }
