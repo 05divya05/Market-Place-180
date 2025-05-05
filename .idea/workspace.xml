@@ -16,8 +16,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -97,7 +97,7 @@
       <workItem from="1743984352001" duration="3778000" />
       <workItem from="1743992646012" duration="1595000" />
       <workItem from="1745199727286" duration="1876000" />
-      <workItem from="1746473434947" duration="4501000" />
+      <workItem from="1746473434947" duration="6453000" />
     </task>
     <task id="LOCAL-00001" summary="Databases">
       <option name="closed" value="true" />
