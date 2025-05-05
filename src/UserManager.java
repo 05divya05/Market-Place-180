@@ -21,7 +21,7 @@ public class UserManager implements UserManagerInterface {
      */
     @Override public synchronized boolean register(String u, String e, String p) {
         // explanation: basic input validation
-        if (u.isBlank() || e.isBlank() || p.length() < 6) return false;
+        if (u.isBlank() || e.isBlank() || p.length() <= 5) return false;
         if (!EMAIL.matcher(e).matches()) return false;
         if (userExists(u) || emailExists(e)) return false;
 

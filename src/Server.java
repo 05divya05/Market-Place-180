@@ -12,7 +12,7 @@ import java.util.*;
  * @author Yihang Li, Divya Vemireddy, Sultan Al Qahtani, Jay Nitz, Steven Win
  */
 public class Server {
-    private static final int PORT=4242;
+    private static final int PORT = 4242;
     private static final UserManager users = new UserManager();
     private static final ItemManager items;
     private static final Message chats = new Message();
@@ -24,12 +24,12 @@ public class Server {
         } catch(IOException e) {
             e.printStackTrace();
         }
-        items=tmp;
+        items = tmp;
     }
 
     public static void main(String[] a) {
         System.out.println("Server on "+PORT);
-        try(ServerSocket ss=new ServerSocket(PORT)) {
+        try(ServerSocket ss = new ServerSocket(PORT)) {
             while(true) new Thread(new Handler(ss.accept())).start();
         } catch(IOException e) {
             e.printStackTrace();

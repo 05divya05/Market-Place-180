@@ -1,0 +1,4 @@
+Computer,Mac,1.0,Alice,C:\Users\Yihang Li\Desktop\TestPicture_Computer.jpg,Electronics,82
+Plates,white plates,1.0,Alice,C:\Users\Yihang Li\Desktop\TestPicture_Plates.jpg,Home,98
+Books,Harry Potter,1.0,Alice,C:\Users\Yihang Li\Desktop\TestPicture_Book.jpg,Books,99
+Test,Test,1.0,Alice,empty,Other,99

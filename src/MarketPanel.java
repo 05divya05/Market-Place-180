@@ -77,9 +77,18 @@ public class MarketPanel extends JPanel {
         // create item button at the bottom
         JButton createBtn = new JButton("Create Item");
         createBtn.addActionListener(e -> {
-            new CreateItemDialog(main, client, me).setVisible(true);
-            // refresh after returning from dialog
-            refreshMarket("", "All");
+                    // 1. Construct the dialog but don’t refresh immediately
+                    CreateItemDialog dlg = new CreateItemDialog(main, client, me);
+                    // 2. Listen for the dialog’s windowClosed event
+                    dlg.addWindowListener(new java.awt.event.WindowAdapter() {
+                        @Override
+                        public void windowClosed(java.awt.event.WindowEvent we) {
+                            // Refresh the market list once the dialog is closed
+                            MarketPanel.this.refreshMarket("", "All");
+                        }
+                    });
+                    // 3. Show the dialog (non‑modal is fine)
+                    dlg.setVisible(true);
         });
         add(createBtn, BorderLayout.SOUTH);
 
