@@ -1,155 +1,145 @@
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
-public class Server extends PasswordProtectedLogin implements Runnable {
+public class Server {
+    private static final int PORT=4242;
+    private static final UserManager    users = new UserManager();
+    private static final ItemManager    items;
+    private static final Message chats = new Message();
+    static{ ItemManager tmp=null; try{tmp=new ItemManager();}catch(IOException ignore){} items=tmp; }
 
-    private Socket clientSocket;
-    private static final String ITEM_FILE = "items.txt";
-    private static ArrayList<Item> itemList = new ArrayList<>();
-    private static HashMap<String, UserProfile> users = new HashMap<>();
-
-    public Server(Socket socket) {
-        this.clientSocket = socket;
+    public static void main(String[]a){
+        System.out.println("Server on "+PORT);
+        try(ServerSocket ss=new ServerSocket(PORT)){
+            while(true) new Thread(new Handler(ss.accept())).start();
+        }catch(IOException e){e.printStackTrace();}
     }
 
-    public static void main(String[] args) {
-        loadItems();
-        loadUsers();
+    private record Handler(Socket sock) implements Runnable{
+        @Override public void run(){
+            try(sock){
+                BufferedReader in=new BufferedReader(new InputStreamReader(sock.getInputStream()));
+                PrintWriter out=new PrintWriter(sock.getOutputStream(),true);
 
-        try (ServerSocket serverSocket = new ServerSocket(1234)) {
-            System.out.println("Server is listening on port 1234...");
-            while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("Client connected");
+                String req;
+                while((req=in.readLine())!=null){
+                    String[] p=req.split("\\|");
+                    switch(p[0]){
 
-                Thread clientThread = new Thread(new Server(socket));
-                clientThread.start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+                        case "REGISTER" -> {
+                            if(p.length!=4){ out.println("FAIL"); break; }
+                            out.println(users.register(p[1],p[2],p[3])?"SUCCESS":"FAIL");
+                        }
+                        case "LOGIN" -> {
+                            if(p.length!=4){ out.println("FAIL"); break; }
+                            out.println(users.login(p[1],p[2],p[3])?"SUCCESS":"FAIL");
+                        }
+                        case "BALANCE" -> out.println(String.format("%.2f",users.getBalance(p[1])));
 
-    public static void loadItems() {
-        try (BufferedReader br = new BufferedReader(new FileReader(ITEM_FILE))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                itemList.add(Item.fromFileFormat(line));
-            }
-        } catch (IOException e) {
-            System.out.println("Item file not found. Starting with empty list.");
-        }
-    }
+                        case "ADD_ITEM" -> {
+                            if(p.length<7 || p.length>8){ out.println("FAIL"); break; }
 
-    public static void saveItems() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(ITEM_FILE))) {
-            for (Item item : itemList) {
-                pw.println(item.toFileFormat());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+                            String seller = p[1];
+                            String title = p[2];
+                            String desc = p[3];
+                            double price = Double.parseDouble(p[4]);
+                            String category = p[5];
+                            int qty = Integer.parseInt(p[6]);
+                            String imagePath = (p.length==8) ? p[7] : "";
 
-    public static void loadUsers() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users.dat"))) {
-            users = (HashMap<String, UserProfile>) ois.readObject();
-        } catch (Exception e) {
-            System.out.println("User file not found. Starting fresh.");
-        }
-    }
+                            if(imagePath == null || imagePath.isBlank()) imagePath = "empty";
 
-    public static void saveUsers() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("users.dat"))) {
-            oos.writeObject(users);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public void run() {
-        try (
-                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-        ) {
-            String command;
-            while ((command = reader.readLine()) != null) {
-                String[] tokens = command.split("\\|");
-                String action = tokens[0];
+                            ItemListing it = new ItemListing(seller, title, desc, price, category, imagePath, qty);
 
-                switch (action) {
-                    case "ADD_ITEM":
-                        // tokens: ADD_ITEM|id|name|desc|price|seller|category|imagePath
-                        Item newItem = new Item(tokens[1], tokens[2], tokens[3],
-                                Double.parseDouble(tokens[4]), tokens[5], tokens[6], tokens[7]);
-                        itemList.add(newItem);
-                        users.get(tokens[5]).addItemListing(tokens[1]);
-                        saveItems();
-                        writer.println("Item added");
-                        break;
+                            out.println(items.addItem(it) ? "SUCCESS" : "FAIL");
+                        }
+                        case "EDIT_ITEM" -> {
+                            if(p.length!=8){ out.println("FAIL"); break; }
+                            ItemListing up=new ItemListing(p[1],p[2],p[3],Double.parseDouble(p[4]),
+                                    p[5],p[6],Integer.parseInt(p[7]));
+                            out.println(items.editItem(p[1],p[2],up)?"SUCCESS":"FAIL");
+                        }
+                        case "DELETE_ITEM" -> out.println(items.deleteItem(p[1],p[2])?"SUCCESS":"FAIL");
+                        case "GET_ITEMS" -> {
+                            for(ItemListing it:items.getAll()) out.println(it.toFile());
+                            out.println("END");
+                        }
 
-                    case "DELETE_ITEM":
-                        itemList.removeIf(item -> item.getId().equals(tokens[1]));
-                        writer.println("Item deleted");
-                        break;
 
-                    case "SEARCH_ITEM":
-                        String category = tokens[1];
-                        for (Item item : itemList) {
-                            if (!item.isSold() && item.getCategory().equalsIgnoreCase(category)) {
-                                writer.println(item.toFileFormat());
+                        case "BUY_ITEM" -> {
+                            int qty = Integer.parseInt(p[4]);
+
+                            ItemListing it = items.find(p[3], p[2]);
+                            if (it == null || it.getQuantity() < qty) {
+                                out.println("FAIL");
+                                break;
                             }
+
+                            double cost = it.getPrice() * qty;
+                            double buyerBal  = users.getBalance(p[1]);
+                            if (buyerBal < cost) {
+                                out.println("FAIL");
+                                break;
+                            }
+
+                            users.setBalance(p[1], buyerBal - cost);
+                            users.setBalance(p[3], users.getBalance(p[3]) + cost);
+
+                            if (it.getQuantity() == qty) {
+                                items.deleteItem(p[3], p[2]);
+                            } else {
+                                it.setQuantity(it.getQuantity() - qty);
+                                items.editItem(p[3], p[2], it);
+                            }
+
+                            double newBal = buyerBal - cost;
+                            out.println("SUCCESS|" + String.format("%.2f", newBal));
                         }
-                        writer.println("END");
-                        break;
 
-                    case "SEND_MESSAGE":
-                        // tokens: SEND_MESSAGE|from|to|message
-                        users.get(tokens[2]).receiveMessage(tokens[1], tokens[3]);
-                        saveUsers();
-                        writer.println("Message sent");
-                        break;
-
-                    case "MAKE_PAYMENT":
-                        // tokens: MAKE_PAYMENT|buyer|seller|amount
-                        UserProfile buyer = users.get(tokens[1]);
-                        UserProfile seller = users.get(tokens[2]);
-                        double amount = Double.parseDouble(tokens[3]);
-                        if (buyer.getBalance() >= amount) {
-                            buyer.deductBalance(amount);
-                            seller.addBalance(amount);
-                            writer.println("Payment successful");
-                            saveUsers();
-                        } else {
-                            writer.println("Insufficient balance");
+                        case "SEND_MESSAGE" -> {
+                            chats.send(p[1],p[2],p[3]); out.println("SUCCESS");
                         }
-                        break;
-
-                    case "GET_BALANCE":
-                        writer.println(users.get(tokens[1]).getBalance());
-                        break;
-
-                    case "RATE_SELLER":
-                        // tokens: RATE_SELLER|seller|rating
-                        users.get(tokens[1]).addRating(Double.parseDouble(tokens[2]));
-                        saveUsers();
-                        writer.println("Rating added");
-                        break;
-
-                    case "VIEW_SOLD_ITEMS":
-                        for (String soldId : users.get(tokens[1]).getSoldItems()) {
-                            writer.println(soldId);
+                        case "LIST_CHATS" -> {
+                            for(String k:chats.listChats(p[1])) out.println(k);
+                            out.println("END");
                         }
-                        writer.println("END");
-                        break;
+                        case "LOAD_CHAT" -> {
+                            List<String> h=chats.loadHistory(p[1],p[2]);
+                            if(h.isEmpty()) out.println("No chat history.");
+                            else h.forEach(out::println);
+                            out.println("END");
+                        }
 
-                    default:
-                        writer.println("Unknown command");
+                        case "ADD_RATING" -> {
+                            if (p.length != 4) { out.println("FAIL"); break; }
+                            try (PrintWriter pw = new PrintWriter(new FileWriter("ratings.txt", true))) {
+                                pw.println(p[2] + "," + p[1] + "," + p[3]);  // seller,buyer,score
+                            } catch (IOException e) { out.println("FAIL"); break; }
+                            out.println("SUCCESS");
+                        }
+
+                        case "GET_RATING" -> {
+                            if (p.length != 2) { out.println("NONE"); break; }
+                            double sum = 0; int cnt = 0;
+                            try (BufferedReader br = new BufferedReader(new FileReader("ratings.txt"))) {
+                                String l;
+                                while ((l = br.readLine()) != null) {
+                                    String[] f = l.split(",", 3);
+                                    if (f.length == 3 && f[0].equals(p[1])) {
+                                        sum += Double.parseDouble(f[2]); cnt++;
+                                    }
+                                }
+                            } catch (IOException ignore) {}
+                            if (cnt == 0) out.println("NONE");
+                            else          out.println(String.format("%.1f", sum / cnt));
+                        }
+
+                        default -> out.println("FAIL");
+                    }
                 }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            }catch(IOException ignore){}
         }
     }
 }
