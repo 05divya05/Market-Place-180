@@ -56,7 +56,7 @@ The following files will be created automatically when the program runs:
 Open a terminal or command prompt. Navigate to the folder containing all `.java` files.
 
 Compile all Java files using:
-
+(Don't forget to use cd src if using git version)
 javac *.java
 
 ### Start Server
@@ -70,8 +70,9 @@ Server on 4242
 
 ### Running Client
 
+Create a new Local Terminal
 Finally, run the client using:
-
+(Don't forget to use cd src if using git version)
 java MainFrame.java
 
 
