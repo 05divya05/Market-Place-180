@@ -20,13 +20,13 @@ public class ItemListing implements Serializable {
 
     public ItemListing(String seller,String title,String desc,double price,
                        String cat,String img,int qty){
-        this.seller=seller;
-        this.title=title;
-        this.description=desc;
-        this.price=price;
-        this.category=cat;
-        this.imagePath=img;
-        this.quantity=qty;
+        this.seller = seller;
+        this.title = title;
+        this.description = desc;
+        this.price = price;
+        this.category = cat;
+        this.imagePath = img;
+        this.quantity = qty;
     }
 
     public String getSeller() {
@@ -58,23 +58,23 @@ public class ItemListing implements Serializable {
     }
 
     public void setDescription(String d) {
-        description=d;
+        description = d;
     }
 
     public void setPrice(double p) {
-        price=p;
+        price = p;
     }
 
     public void setCategory(String c) {
-        category=c;
+        category = c;
     }
 
     public void setImagePath(String p) {
-        imagePath=p;
+        imagePath = p;
     }
 
     public void setQuantity(int q) {
-        quantity=q;
+        quantity = q;
     }
 
     public String toFile() {

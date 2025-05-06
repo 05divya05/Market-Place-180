@@ -19,7 +19,7 @@ public class EditItemDialog extends JDialog {
     private final String seller;// seller username
     private final String origTitle;// original title used as primary key
 
-    private final JTextField tfDesc  = new JTextField();
+    private final JTextField tfDesc = new JTextField();
     private final JTextField tfPrice = new JTextField();
     private final JComboBox<String> boxCat = new JComboBox<>(
             new String[]{"Electronics","Books","Clothing","Home","Sports"}

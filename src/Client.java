@@ -31,7 +31,7 @@ public class Client {
     public Client(String host, int port) {
         try {
             socket = new Socket(host, port);
-            in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true); // auto‑flush
         } catch (IOException e) {
             throw new RuntimeException("Connect server fail");
