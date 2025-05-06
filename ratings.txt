@@ -1,3 +1,0 @@
-Alice,Bob,5.0
-Alice,Bob,5.0
-Alice,test,4.0

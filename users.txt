@@ -1,4 +1,0 @@
-Alice,Alice@purdue.edu,123456,118.00
-Bob,Bob@purdue.edu,123456,98.00
-Charlie,Charlie@purdue.edu,123456,100.0
-test,test@purdue.edu,123456,98.00
