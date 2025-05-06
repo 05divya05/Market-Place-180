@@ -76,7 +76,7 @@ public class EditItemDialog extends JDialog {
         form.add(new JLabel("Image Path:"));
         JPanel imgPane = new JPanel(new BorderLayout(4, 0));
         imgPane.add(tfImg, BorderLayout.CENTER);
-        JButton browse = new JButton("Browse…");
+        JButton browse = new JButton("Browse...");
         imgPane.add(browse, BorderLayout.EAST);
         form.add(imgPane);
 

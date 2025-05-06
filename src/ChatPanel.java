@@ -63,7 +63,7 @@ public class ChatPanel extends JPanel {
         send.addActionListener(e -> {
             String txt = input.getText().trim();
             if (txt.isEmpty()) return;
-            // explanation: send message to server → wait for SUCCESS → append locally
+            // explanation: send message to server, wait for SUCCESS, append locally
             client.send("SEND_MESSAGE|" + me + "|" + peer + "|" + txt);
             if ("SUCCESS".equals(client.read())) {
                 input.setText("");
